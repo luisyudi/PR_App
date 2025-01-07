@@ -49,12 +49,14 @@ class _RoutinePageState extends State<RoutinePage> {
         ],
       ),
       backgroundColor: Colors.grey[900],
-      body: Column(
-        children: _loadExercises(),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 80),
+        child: Column(
+          children: _loadExercises(),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          //TODO: add new exercises
           _newExercise(context);
         },
         backgroundColor: Colors.red,
@@ -219,13 +221,13 @@ class _RoutinePageState extends State<RoutinePage> {
                             final weight = double.tryParse(textWeight.text);
 
                             if (weight == null || weight <= 0) {
-                              print("Valor para peso inválido");
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Valor para peso inválido")));
                               return;
                             }
 
                             final reps = int.tryParse(textReps.text);
                             if (reps == null || reps <= 0) {
-                              print("Número de repetições inválido");
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Número de repetições inválido")));
                               return;
                             }
 
@@ -278,7 +280,13 @@ class _RoutinePageState extends State<RoutinePage> {
               itemBuilder: (context, index) {
                 final exercise = snapshot.data![index];
                 return ExerciseWidget(
-                    exercise
+                    exercise: exercise,
+                    database: widget.database,
+                    onUpdate: (){
+                      setState(() {
+
+                      });
+                    }
                 );
               },
             );
@@ -291,8 +299,10 @@ class _RoutinePageState extends State<RoutinePage> {
 
 class ExerciseWidget extends StatelessWidget {
   final Exercise exercise;
+  final DatabaseService database;
+  final VoidCallback onUpdate;
 
-  const ExerciseWidget(this.exercise,{super.key});
+  const ExerciseWidget({required this.exercise, required this.database, required this.onUpdate, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -304,8 +314,8 @@ class ExerciseWidget extends StatelessWidget {
         margin: EdgeInsets.fromLTRB(0, 20.0, 0, 0),
         child: Container(
           width: screenWidth * 0.9,
-          height: 180,
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          height: 120,
+          padding: EdgeInsets.fromLTRB(20, 0, 5, 0),
           child: Column(
             children: [
               Row(
@@ -315,11 +325,12 @@ class ExerciseWidget extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 20,
                     ),
                   ),
+                  Spacer(),
                   IconButton(
-                      onPressed: (){},
+                      onPressed: () => _editExercise(context),
                       icon: Icon(
                           Icons.edit,
                           color: Colors.white,
@@ -328,39 +339,17 @@ class ExerciseWidget extends StatelessWidget {
                   )
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 5),
               Row(
                 children: [
-                  TextButton(onPressed: (){}, child: Text('a')),
-                  TextButton(onPressed: (){}, child: Text('b')),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    child: TextField(
-                      //controller: textController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[800],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey[800]!),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  TextButton(onPressed: (){}, child: Text('c')),
-                  TextButton(onPressed: (){}, child: Text('d')),
+                  _labelWidget("Peso: ${(exercise.weight % 1 == 0)
+                      ? exercise.weight.toInt().toString()
+                      : exercise.weight.toString()} kg"),
                 ],
               ),
               Row(
                 children: [
-                  TextButton(onPressed: (){}, child: Text('a')),
-                  //TextField(),
-                  TextButton(onPressed: (){}, child: Text('b')),
+                  _labelWidget('Repetições: ${exercise.reps}'),
                 ],
               )
 
@@ -370,4 +359,214 @@ class ExerciseWidget extends StatelessWidget {
       ),
     );
   }
+
+  void _editExercise(BuildContext context) {
+    TextEditingController txtName = TextEditingController();
+    TextEditingController txtWeight = TextEditingController();
+    TextEditingController txtReps = TextEditingController();
+
+    txtName.text = exercise.exerciseName;
+
+    txtWeight.text = (exercise.weight % 1 == 0)
+        ? exercise.weight.toInt().toString()
+        : exercise.weight.toString();
+
+    txtReps.text = exercise.reps.toString();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          backgroundColor: Colors.grey[900],
+          child: SizedBox(
+            width: 800,
+            height: 400,
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Editar Exercício',
+                    style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  TextField(
+                    controller: txtName,
+                    decoration: InputDecoration(
+                      labelStyle: TextStyle(color: Colors.white),
+                      border: UnderlineInputBorder()
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(height: 30),
+                  Row(
+                    children: [
+                      _editValueButtonWidget(-5, txtWeight),
+                      _editValueButtonWidget(-1, txtWeight),
+                      Flexible(
+                        child: TextField(
+                          maxLength: 5,
+                          controller: txtWeight,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            counterText: '',
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            hintStyle: TextStyle(color: Colors.grey),
+                          ),
+                          style: TextStyle(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      _editValueButtonWidget(1, txtWeight),
+                      _editValueButtonWidget(5, txtWeight),
+                    ],
+                  ),
+                  SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Spacer(),
+                      _editValueButtonWidget(-1, txtReps),
+                      Container(
+                        width: 70,
+                        child: TextField(
+                          maxLength: 3,
+                          controller: txtReps,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            counterText: '',
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            hintStyle: TextStyle(color: Colors.grey),
+                          ),
+                          style: TextStyle(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      _editValueButtonWidget(1, txtReps),
+                      Spacer()
+                    ],
+                  ),
+                  SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        style: OutlinedButton.styleFrom(
+                            shape: ContinuousRectangleBorder(),
+                            overlayColor: Colors.red
+                        ),
+                        child: Text(
+                          'Cancelar',
+                          style: TextStyle(
+                              color: Colors.white
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (txtName.text == "" || txtWeight.text == "" || txtReps.text == "") return;
+
+                          if(
+                          txtName.text == exercise.exerciseName
+                              && txtWeight.text == exercise.weight.toString()
+                              && txtReps.text == exercise.reps.toString()
+                          ) {
+                            return;
+                          }
+
+                          final weight = double.tryParse(txtWeight.text);
+
+                          if (weight == null || weight <= 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Valor para peso inválido")));
+                            return;
+                          }
+
+                          final reps = int.tryParse(txtReps.text);
+                          if (reps == null || reps <= 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Número de repetições inválido")));
+                            return;
+                          }
+
+                          database.updateExercise(exercise.exerciseId, txtName.text, weight, reps);
+                          onUpdate();
+                          Navigator.of(context).pop(true);
+                        },
+                        style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            backgroundColor: Colors.red,
+                            shape: ContinuousRectangleBorder(),
+                            overlayColor: Colors.red
+                        ),
+                        child: Text(
+                          'Salvar',
+                          style: TextStyle(
+                              color: Colors.white
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _labelWidget(String text){
+    return Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+    );
+  }
+
+  Widget _editValueButtonWidget(int value, TextEditingController controller){
+    return TextButton(
+      onPressed: () {
+        double num = double.parse(controller.text) + value;
+        if (num < 0){
+          controller.text = '0';
+          return;
+        }
+
+        controller.text =  (num % 1 == 0)
+            ? num.toInt().toString()
+            : num.toString();
+      },
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        minimumSize: Size(40, 40),
+        backgroundColor: Colors.grey[800],
+        shape: CircleBorder(),
+      ),
+      child: Text(
+        (value > 0) ? '+$value': value.toString(),
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
 }

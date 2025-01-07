@@ -179,7 +179,7 @@ class RoutineWidget extends StatelessWidget {
   final String name;
   final VoidCallback onDelete;
 
-  RoutineWidget({required this.id, required this.name, required this.onDelete,Key? key}) : super(key: key);
+  const RoutineWidget({required this.id, required this.name, required this.onDelete,super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -211,6 +211,7 @@ class RoutineWidget extends StatelessWidget {
                     '/routine',
                     arguments: routine,
                   ) as bool?;
+
                   if (s == true) {
                     onDelete();
                   }
