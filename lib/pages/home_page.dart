@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gymapp/services/database_service.dart';
 import '../models/routine.dart';
-import 'routine.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -27,8 +26,10 @@ class _HomeState extends State<Home> {
         ),
       ),
       backgroundColor: Colors.grey[900],
-      body: Column(
-        children: _routineList(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: _routineList(),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => newRoutine(context),
@@ -43,100 +44,101 @@ class _HomeState extends State<Home> {
   }
 
   void newRoutine(BuildContext context){
-    TextEditingController textController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          backgroundColor: Colors.grey[900],
-          child: SizedBox(
-            width: 800,
-            height: 230,
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Criar novo Treino',
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  TextField(
-                    controller: textController,
-                    decoration: InputDecoration(
-                      labelText: 'Nome do Treino',
-                      labelStyle: TextStyle(color: Colors.white),
-                      filled: true,
-                      fillColor: Colors.grey[800],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey[800]!),
-                        borderRadius: BorderRadius.circular(8.0),
+      TextEditingController textController = TextEditingController();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            backgroundColor: Colors.grey[900],
+            child: SizedBox(
+              width: 800,
+              height: 230,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Criar novo Treino',
+                      style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white
                       ),
                     ),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        style: OutlinedButton.styleFrom(
-                            shape: ContinuousRectangleBorder(),
-                            overlayColor: Colors.red
+                    SizedBox(height: 30),
+                    TextField(
+                      controller: textController,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: InputDecoration(
+                        labelText: 'Nome do Treino',
+                        labelStyle: TextStyle(color: Colors.white),
+                        filled: true,
+                        fillColor: Colors.grey[800],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: Text(
-                          'Cancelar',
-                          style: TextStyle(
-                              color: Colors.white
-                          ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey[800]!),
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          String name = textController.text;
-                          if(name == "") return;
-                          _database.addRoutine(name);
-                          textController.text = "";
-                          setState((){});
-                          Navigator.of(context).pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            backgroundColor: Colors.red,
-                            shape: ContinuousRectangleBorder(),
-                            overlayColor: Colors.red
-                        ),
-                        child: Text(
-                          'Criar',
-                          style: TextStyle(
-                              color: Colors.white
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        OutlinedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: OutlinedButton.styleFrom(
+                              shape: ContinuousRectangleBorder(),
+                              overlayColor: Colors.red
+                          ),
+                          child: Text(
+                            'Cancelar',
+                            style: TextStyle(
+                                color: Colors.white
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            String name = textController.text;
+                            if(name == "") return;
+                            _database.addRoutine(name);
+                            textController.text = "";
+                            setState((){});
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              backgroundColor: Colors.red,
+                              shape: ContinuousRectangleBorder(),
+                              overlayColor: Colors.red
+                          ),
+                          child: Text(
+                            'Criar',
+                            style: TextStyle(
+                                color: Colors.white
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
   }
 
   List<Widget> _routineList(){
@@ -180,7 +182,7 @@ class RoutineWidget extends StatelessWidget {
   final String name;
   final VoidCallback onDelete;
 
-  RoutineWidget({required this.id, required this.name, required this.onDelete,Key? key}) : super(key: key);
+  const RoutineWidget({required this.id, required this.name, required this.onDelete,super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +214,7 @@ class RoutineWidget extends StatelessWidget {
                     '/routine',
                     arguments: routine,
                   ) as bool?;
+
                   if (s == true) {
                     onDelete();
                   }

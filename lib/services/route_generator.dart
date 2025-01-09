@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gymapp/pages/home_page.dart';
 
 import '../models/routine.dart';
-import '../pages/routine.dart';
+import '../pages/routine_page.dart';
 
 class RouteGenerator{
     static Route<dynamic> generateRoute(RouteSettings settings){

@@ -1,3 +1,4 @@
+import 'package:gymapp/models/exercise.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -64,8 +65,10 @@ class DatabaseService {
         final data = await db.query("tblRoutine");
         List<Routine> routines = data
             .map((e) =>
-                Routine(id: e["routineId"] as int, name: e["routineName"] as String))
-            .toList();
+                Routine(
+                    id: e["routineId"] as int,
+                    name: e["routineName"] as String
+                )).toList();
         return routines;
     }
 
@@ -79,9 +82,24 @@ class DatabaseService {
         });
     }
 
-    Future<List<Map<String, dynamic>>> getExercises(int routineId) async {
+    Future<List<Exercise>> getExercises(int routineId) async {
         final db = await getDatabase();
-        return await db.query('tblExercise', where: 'routineId = ?', whereArgs: [routineId]);
+        final data = await db.query(
+            'tblExercise',
+            where: 'routineId = ?',
+            whereArgs: [routineId]
+        );
+        List<Exercise> exercise = data
+            .map((e) =>
+            Exercise(
+                exerciseId: e["exerciseId"] as int,
+                routineId: e["routineId"] as int,
+                exerciseName: e["exerciseName"] as String,
+                weight: e["weight"] as double,
+                reps: e["reps"] as int))
+            .toList();
+        return exercise;
+
     }
 
     Future<int> updateExercise(int exerciseId, String exerciseName, double weight, int reps) async {
