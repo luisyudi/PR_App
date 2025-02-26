@@ -1,16 +1,12 @@
-# gymapp
+#PR App
 
-A new Flutter project.
+## Overview
 
-## Getting Started
+This is a Flutter-based mobile application for tracking gym exercises. It's designed for personal use and helps users manage and track their workout routines.
+This project is currently under development and soon will be released build for download.
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Track various gym exercises.
+- Personal use-focused with a simple, intuitive UI.
+- Built using Flutter, offering cross-platform support for iOS and Android.
